@@ -9,3 +9,103 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// 커뮤니티 모델
+model Community {
+  id       Int    @id @default(autoincrement())
+  category String
+  posts    Post[]
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String
+  communityId Int
+  community   Community @relation(fields: [communityId], references: [id])
+  comments    Comment[]
+  likes       Like[]
+  dislikes    Dislike[]
+  images      Image[]
+}
+
+model Comment {
+  id     Int    @id @default(autoincrement())
+  text   String
+  postId Int
+  post   Post   @relation(fields: [postId], references: [id])
+}
+
+model Like {
+  id     Int  @id @default(autoincrement())
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+}
+
+model Dislike {
+  id     Int  @id @default(autoincrement())
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+}
+
+model Image {
+  id     Int    @id @default(autoincrement())
+  postId Int
+  post   Post   @relation(fields: [postId], references: [id])
+  url    String
+}
+
+// 중고거래 모델
+model Marketplace {
+  id       Int       @id @default(autoincrement())
+  products Product[]
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String
+  description   String
+  category      String
+  marketplace   Marketplace   @relation(fields: [marketplaceId], references: [id])
+  marketplaceId Int
+  likes         ProductLike[]
+}
+
+model ProductLike {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// 1:1 채팅 모델
+model Chat {
+  id       Int       @id @default(autoincrement())
+  messages Message[]
+}
+
+model Message {
+  id         Int    @id @default(autoincrement())
+  text       String
+  chatId     Int
+  senderId   Int
+  receiverId Int
+  chat       Chat   @relation(fields: [chatId], references: [id])
+}
+
+// 키워드 모델
+model Keyword {
+  id     Int    @id @default(autoincrement())
+  name   String
+  userId Int?
+  user   User?  @relation(fields: [userId], references: [id])
+}
+
+// 사용자 모델
+model User {
+  id       Int       @id @default(autoincrement())
+  username String
+  email    String
+  password String
+  keywords Keyword[]
+  // 다른 필드 추가
+}
