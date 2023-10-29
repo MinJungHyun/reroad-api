@@ -12,7 +12,7 @@ interface IOAuthUser {
   };
 }
 
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly usersService: UserService, //
@@ -20,7 +20,7 @@ export class AuthController {
   ) {}
 
   //-----------------------구글 로그인-----------------------------//
-  @Get('/login/google')
+  @Get('/google')
   @UseGuards(AuthGuard('google'))
   async loginGoogle(
     @Req() req: Request & IOAuthUser, //
@@ -30,9 +30,13 @@ export class AuthController {
   }
 
   //-----------------------카카오 로그인-----------------------------//
-  @Get('/login/kakao')
+  @Get('/kakao')
   @UseGuards(AuthGuard('kakao'))
-  async loginKakao(
+  async loginKakao() {}
+
+  @Get('/kakao/callback')
+  @UseGuards(AuthGuard('kakao'))
+  async loginKakaoCallback(
     @Req() req: Request & IOAuthUser, //
     @Res() res: Response,
   ) {
@@ -40,7 +44,7 @@ export class AuthController {
   }
 
   //-----------------------네이버 로그인-----------------------------//
-  @Get('/login/naver')
+  @Get('/naver')
   @UseGuards(AuthGuard('naver'))
   async loginNaver(
     @Req() req: Request & IOAuthUser, //

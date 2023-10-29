@@ -32,8 +32,8 @@ export class UserController {
     summary: '유저 단일 조회',
     description: '유저 단일 조회 API',
   })
-  async fetchUser(@Param('id') id: string) {
-    return await this.userService.fetch({ id });
+  async fetchUser(@Param('id') id: number) {
+    return await this.userService.fetch(id);
   }
 
   //----------------- 생성 -----------------------//
@@ -48,7 +48,7 @@ export class UserController {
   @ApiOperation({ summary: '유저 업데이트', description: '유저 업데이트 API' })
   async updateUser(
     @Body() updateUserInput: UpdateUserInput,
-    @Param('id') id: string,
+    @Param('id') id: number,
   ) {
     return await this.userService.update({ id, updateUserInput });
   }
@@ -56,7 +56,7 @@ export class UserController {
   //----------------- 삭제 -----------------------//
   @Delete('/:id')
   @ApiOperation({ summary: '유저 삭제', description: '유저 삭제 API' })
-  async deleteUser(@Param('id') id: string) {
+  async deleteUser(@Param('id') id: number) {
     return await this.userService.delete({ id });
   }
 }

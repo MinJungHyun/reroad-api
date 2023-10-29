@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { USER_ENUM } from '../entities/user.entity';
-
 export class CreateUserInput {
   @ApiProperty({ description: '이름' })
   name: string;
@@ -13,9 +11,6 @@ export class CreateUserInput {
 
   @ApiProperty({ description: '비밀번호' })
   password: string;
-
-  @ApiProperty({ description: '권한', example: 'TEACHER || STUDENT' })
-  role: USER_ENUM;
 
   @ApiProperty({
     description: '사용자 이미지 url',

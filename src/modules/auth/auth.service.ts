@@ -20,9 +20,10 @@ export class AuthService {
 
   setRefreshToken({ user, res, req }: IAuthServiceSetRefreshToken): string {
     const refreshToken = this.jwtService.sign(
-      { role: user.role, sub: user.id },
+      { sub: user.id },
       { secret: process.env.JWT_REFRESH_KEY, expiresIn: '2w' },
     );
+    console.log('@@@@', refreshToken);
 
     res.setHeader('Set-Cookie', `refreshToken=${refreshToken}; path=/;`);
     const allowedOrigins = ['http://localhost:3000'];
@@ -39,22 +40,19 @@ export class AuthService {
     );
     res.setHeader(
       'Set-Cookie',
-      `refreshToken=${refreshToken}; path=/; domain=.yoramyoram-backend.shop; SameSite=None; Secure; httpOnly;`,
+      `refreshToken=${refreshToken}; path=/; SameSite=None; Secure; httpOnly;`,
     );
 
-    console.log(user.role);
     return refreshToken;
   }
 
   async OAuthLogin({ req, res }) {
-    let user = await this.userService.findUserByEmail({
-      email: req.user.email,
-    });
+    const email: string = req.user.email || '';
+    let user = await this.userService.findUserByEmail(email);
     if (!user) user = await this.userService.create({ ...req.user });
 
     this.setRefreshToken({ user, res, req });
-    res.redirect(
-      'http://localhost:5501/main-project/frontend/login/index.html',
-    );
+    res.redirect('http://localhost:3000');
+    return 'done';
   }
 }

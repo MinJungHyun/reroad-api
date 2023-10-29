@@ -1,6 +1,6 @@
+import { User } from '@prisma/client';
 import { Request, Response } from 'express';
-import { IAuthUserItem } from 'src/commons/types/context';
-import { User } from 'src/modules/users/entities/user.entity';
+import { IAuthUserItem } from 'src/common/types/context';
 
 export interface IAuthServiceGetAccessToken {
   user: User | IAuthUserItem;
