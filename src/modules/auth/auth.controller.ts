@@ -29,6 +29,18 @@ export class AuthController {
     this.authService.OAuthLogin({ req, res });
   }
 
+  @Get('/google/callback')
+  @UseGuards(AuthGuard('google'))
+  async loginGoogleCallback(
+    @Req() req: Request & IOAuthUser, //
+    @Res() res: Response,
+  ) {
+    console.log('@@@@', req);
+    console.log('@@@@', res);
+
+    this.authService.OAuthLogin({ req, res });
+  }
+
   //-----------------------카카오 로그인-----------------------------//
   @Get('/kakao')
   @UseGuards(AuthGuard('kakao'))

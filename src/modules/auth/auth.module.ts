@@ -9,13 +9,14 @@ import { UserService } from '../users/user.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { JwtGoogleStrategy } from 'src/common/auth/jwt.google.strategy';
 
 @Module({
   imports: [JwtModule.register({}), PrismaModule],
   providers: [
     JwtAccessStrategy, //
     JwtRefreshStrategy,
-    // JwtGoogleStrategy,
+    JwtGoogleStrategy,
     // JwtNaverStrategy,
     JwtKakaoStrategy,
     AuthService,
