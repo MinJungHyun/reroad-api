@@ -4,9 +4,30 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './modules/users/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ChatModule } from './chat/chat.module';
+import { DislikeModule } from './dislike/dislike.module';
+import { CommunityModule } from './community/community.module';
+import { CommentModule } from './comment/comment.module';
+import { LikeModule } from './like/like.module';
+import { MessageModule } from './message/message.module';
+import { PostModule } from './post/post.module';
+import { ProductModule } from './product/product.module';
+import { ProductLikeModule } from './product-like/product-like.module';
 
+const modules = [
+  ChatModule,
+  DislikeModule,
+  CommunityModule,
+  CommentModule,
+  LikeModule,
+  MessageModule,
+  PostModule,
+  UserModule,
+  ProductModule,
+  ProductLikeModule,
+];
 @Module({
-  imports: [PrismaModule, UserModule, AuthModule],
+  imports: [PrismaModule, UserModule, AuthModule, ...modules],
   controllers: [AppController],
   providers: [AppService],
 })
