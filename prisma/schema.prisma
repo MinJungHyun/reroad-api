@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -105,12 +105,19 @@ model Keyword {
   user   User?  @relation(fields: [userId], references: [id])
 }
 
-// 사용자 모델
 model User {
-  id       Int       @id @default(autoincrement())
-  username String
-  email    String
-  password String
-  keywords Keyword[]
-  // 다른 필드 추가
+  id          Int       @id @default(autoincrement())
+  password    String
+  type        String
+  description String?
+  uid         String
+  name        String
+  phone       String
+  email       String
+  role        String
+  image       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  Keyword     Keyword[]
 }

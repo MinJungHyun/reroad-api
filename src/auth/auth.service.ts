@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../users/user.service';
 import { IAuthServiceSetRefreshToken } from './interfaces/auth-service.interface';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +10,7 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  getAccessToken({ user }): string {
+  getAccessToken({ ...user }): string {
     const accessToken = this.jwtService.sign(
       { email: user.email, sub: user.id, role: user.role },
       { secret: process.env.JWT_ACCESS_KEY, expiresIn: '2w' },
@@ -54,5 +54,14 @@ export class AuthService {
     this.setRefreshToken({ user, res, req });
     res.redirect('http://localhost:3000');
     return 'done';
+  }
+  async getCurrentUser(token: string) {
+    try {
+      const decodedToken = this.jwtService.decode(token);
+      return decodedToken;
+    } catch (error) {
+      // 토큰 해독에 실패한 경우 예외 처리
+      throw new Error('Failed to get current user');
+    }
   }
 }

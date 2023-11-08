@@ -1,8 +1,4 @@
-import { PickType } from '@nestjs/mapped-types';
-import { UserEntity } from '../entities/user.entity';
+import { PartialType } from '@nestjs/swagger';
+import { CreateUserInput } from './create-user.dto';
 
-export class UpdateUserDto extends PickType(UserEntity, [
-  'username',
-  'email',
-  'password',
-]) {}
+export class UpdateUserInput extends PartialType(CreateUserInput) {}
