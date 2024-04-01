@@ -2,6 +2,11 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as shortid from 'shortid';
+import { EncryptUtil } from 'src/common/utils/encrypt-utils';
+import {
+  RequestTokenValidation,
+  RequestTokenValidationStatus,
+} from 'src/auth/auth.types';
 
 @Injectable()
 export class UserService {
@@ -42,7 +47,7 @@ export class UserService {
   }
 
   async create({ createUserInput }) {
-    const { email, password, name, phone } = createUserInput;
+    const { email, password, username } = createUserInput;
 
     const user = await this.prisma.user.findFirst({ where: { email } });
     if (user) throw new ConflictException('이미 가입된 이메일입니다');
@@ -70,9 +75,8 @@ export class UserService {
     const result = await this.prisma.user.create({
       data: {
         email,
-        name,
+        username,
         type: 'user',
-        role: '',
         uid: uid,
         phone: phone,
         password: hashedPassword,
@@ -86,8 +90,8 @@ export class UserService {
     const { ...user } = updateUserInput;
 
     const result = await this.prisma.user.update({
-      id: id,
-      ...user,
+      where: { id },
+      data: user,
     });
 
     return result;
@@ -122,5 +126,83 @@ export class UserService {
         type: 'business',
       },
     });
+  }
+
+  //validate token
+  async validateToken(token: string): Promise<RequestTokenValidation> {
+    console.log('validateToken:', token);
+    const dec = EncryptUtil.TwoWay.decrypt(token);
+
+    const [userId, timestamp] = dec.split('^');
+    const now = Date.now();
+    if (now - +timestamp > 1000 * 60 * 60 * 24 * 7) {
+      // 7일
+      return {
+        status: RequestTokenValidationStatus.EXPIRED,
+        message: '만료된 토큰',
+        targetId: +userId,
+        timestamp: +timestamp,
+      };
+    }
+    const res = await this.prisma.user.findFirst({
+      where: {
+        id: +userId,
+      },
+    });
+    if (!res) {
+      return {
+        status: RequestTokenValidationStatus.INVALID,
+        message: '유효하지 않은 토큰',
+        targetId: +userId,
+        timestamp: +timestamp,
+      };
+    }
+
+    //TODO :: 작성 되면 유효하지 않다고 보내기
+    return {
+      status: RequestTokenValidationStatus.VALID,
+      message: '유효한 토큰',
+      targetId: +userId,
+      timestamp: +timestamp,
+    };
+  }
+
+  async resetPassword(userId: number, password: string) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    //기존 비밀번호 찾기
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+    if (user?.password === hashedPassword) {
+      return {
+        statusCode: 400,
+        message: '기존 비밀번호와 동일합니다.',
+        data: {},
+      };
+    }
+
+    const result = await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    if (result) {
+      return {
+        statusCode: 200,
+        message: '비밀번호 변경 성공',
+        data: {},
+      };
+    } else {
+      return {
+        statusCode: 400,
+        message: '비밀번호 변경 실패',
+        data: {},
+      };
+    }
   }
 }

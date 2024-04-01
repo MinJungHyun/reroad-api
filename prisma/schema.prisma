@@ -14,110 +14,172 @@ datasource db {
 //   provider = "prisma-generator-nestjs-crud"
 //   output   = "../src"
 // }
-
-// 커뮤니티 모델
-model Community {
-  id       Int    @id @default(autoincrement())
-  category String
-  posts    Post[]
-}
-
-model Post {
-  id          Int       @id @default(autoincrement())
-  title       String
-  content     String
-  communityId Int
-  community   Community @relation(fields: [communityId], references: [id])
-  comments    Comment[]
-  likes       Like[]
-  dislikes    Dislike[]
-  images      Image[]
-}
-
-model Comment {
-  id     Int    @id @default(autoincrement())
-  text   String
-  postId Int
-  post   Post   @relation(fields: [postId], references: [id])
-}
-
-model Like {
-  id     Int  @id @default(autoincrement())
-  postId Int
-  post   Post @relation(fields: [postId], references: [id])
-}
-
-model Dislike {
-  id     Int  @id @default(autoincrement())
-  postId Int
-  post   Post @relation(fields: [postId], references: [id])
-}
-
-model Image {
-  id     Int    @id @default(autoincrement())
-  postId Int
-  post   Post   @relation(fields: [postId], references: [id])
-  url    String
-}
-
-// 중고거래 모델
-model Marketplace {
-  id       Int       @id @default(autoincrement())
-  products Product[]
-}
-
-model Product {
-  id            Int           @id @default(autoincrement())
-  name          String
-  description   String
-  category      String
-  marketplace   Marketplace   @relation(fields: [marketplaceId], references: [id])
-  marketplaceId Int
-  likes         ProductLike[]
-}
-
-model ProductLike {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-// 1:1 채팅 모델
-model Chat {
-  id       Int       @id @default(autoincrement())
-  messages Message[]
-}
-
-model Message {
-  id         Int    @id @default(autoincrement())
-  text       String
-  chatId     Int
-  senderId   Int
-  receiverId Int
-  chat       Chat   @relation(fields: [chatId], references: [id])
-}
-
-// 키워드 모델
-model Keyword {
-  id     Int    @id @default(autoincrement())
-  name   String
-  userId Int?
-  user   User?  @relation(fields: [userId], references: [id])
-}
+// 유저 정보를 저장하는 테이블
 
 model User {
-  id          Int       @id @default(autoincrement())
-  password    String
-  type        String
-  description String?
-  uid         String
-  name        String
-  phone       String
-  email       String
-  role        String
-  image       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  Keyword     Keyword[]
+  id           Int           @id @default(autoincrement())
+  password     String
+  type         String
+  description  String?
+  uid          String
+  name         String
+  phone        String
+  email        String
+  role         String
+  image        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  products     Product[] // 해당 유저가 등록한 상품들 
+  likes        ProductLike[] // 해당 유저가 좋아하는 상품들
+  keywords     Keyword[]
+  chatJoins    ChatJoin[]
+  chatMessages ChatMessage[]
+
+  @@map("user")
+}
+
+// 중고물품 카테고리 정보를 저장하는 테이블
+model Category {
+  id       Int        @id @default(autoincrement())
+  name     String
+  parent   Category?  @relation("ChildCategories", fields: [parentId], references: [id])
+  parentId Int?
+  children Category[] @relation("ChildCategories") // 자식 카테고리들
+  products Product[] // 해당 카테고리에 속한 상품들
+
+  @@map("category")
+}
+
+// 중고물품 브랜드 정보를 저장하는 테이블
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String
+  parent   Brand?    @relation("ChildBrands", fields: [parentId], references: [id])
+  parentId Int?
+  children Brand[]   @relation("ChildBrands") // 자식 브랜드들
+  products Product[] // 해당 브랜드의 상품들
+
+  @@map("brand")
+}
+
+// 중고물품 정보를 저장하는 테이블
+model Product {
+  id               Int              @id @default(autoincrement())
+  name             String
+  description      String
+  price            Float
+  viewCount        Int              @default(0) // 조회수
+  chatCount        Int              @default(0) // 채팅 횟수
+  likeCount        Int              @default(0) // 좋아요 횟수
+  isHidden         Boolean          @default(false) // 숨기기 여부
+  hideAt           DateTime? // 숨긴 시간
+  deletedAt        DateTime? // 삭제 시간
+  transactionType  TransactionType // 거래 유형: 판매, 교환, 구매, 나눔 등
+  transactionState TransactionState // 거래 상태: 진행 중, 완료됨, 취소됨 등
+  completedAt      DateTime? // 거래 완료 시간
+  category         Category?        @relation(fields: [categoryId], references: [id])
+  categoryId       Int? // 해당 상품의 카테고리 ID
+  brand            Brand?           @relation(fields: [brandId], references: [id])
+  brandId          Int? // 해당 상품의 브랜드 ID
+  createdBy        User             @relation(fields: [createdById], references: [id])
+  createdById      Int
+  likes            ProductLike[] // 해당 상품을 좋아하는 사용자들
+  tags             Tag[] // 상품에 연관된 태그들
+  images           ProductImage[] // 상품 이미지들 
+  chats            Chat[]
+
+  @@map("product")
+}
+
+// 중고물품 이미지 정보를 저장하는 테이블
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("product_image")
+}
+
+// 중고물품 채팅 정보를 저장하는 테이블
+model Chat {
+  id          Int           @id @default(autoincrement())
+  product     Product       @relation(fields: [productId], references: [id])
+  productId   Int
+  ChatMessage ChatMessage[]
+  ChatJoin    ChatJoin[]
+
+  @@map("chat")
+}
+
+model ChatJoin {
+  id     Int  @id @default(autoincrement())
+  chat   Chat @relation(fields: [chatId], references: [id])
+  chatId Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("chat_join")
+}
+
+// 채팅 메시지 정보를 저장하는 테이블
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("chat_message")
+}
+
+// 상품 좋아요 정보를 저장하는 테이블
+model ProductLike {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  @@map("product_like")
+}
+
+// 태그 정보를 저장하는 테이블
+model Tag {
+  id        Int     @id @default(autoincrement())
+  name      String
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  @@map("tag")
+}
+
+// 키워드 정보를 저장하는 테이블
+model Keyword {
+  id     Int    @id @default(autoincrement())
+  word   String
+  userId Int?
+  user   User?  @relation(fields: [userId], references: [id])
+
+  @@map("keyword")
+}
+
+// schema.prisma
+
+// 거래 유형을 나타내는 열거형
+enum TransactionType {
+  SALE // 판매
+  EXCHANGE // 교환
+  PURCHASE // 구매
+  FREE // 나눔
+}
+
+// 거래 상태를 나타내는 열거형
+enum TransactionState {
+  ONGOING // 진행 중
+  COMPLETED // 완료됨
+  CANCELLED // 취소됨
 }

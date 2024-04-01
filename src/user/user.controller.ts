@@ -15,6 +15,7 @@ import { UpdateUserInput } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AuthService } from 'src/auth/auth.service';
+import { EncryptUtil } from '../common/utils/encrypt-utils';
 
 @Controller('user')
 @ApiTags('유저 API')
@@ -54,7 +55,7 @@ export class UserController {
       message: '회원 가입 성공',
       data: {
         email: result.email,
-        name: result.name,
+        username: result.username,
         phone: result.phone,
         uid: result.uid,
       },
@@ -62,14 +63,34 @@ export class UserController {
   }
 
   //----------------- 업데이트 -----------------------//
-  @Patch('/:id')
+  @Patch('/update')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '유저 업데이트', description: '유저 업데이트 API' })
   async updateUser(
     @Body() updateUserInput: UpdateUserInput,
-    @Param('id') id: number,
+    @Req() request: any,
   ) {
-    return await this.userService.update({ id, updateUserInput });
+    const token = request.headers.authorization.split(' ')[1]; // 예시: Bearer 토큰에서 실제 토큰 추출
+    const currentUser: any = await this.authService.getCurrentUser(token);
+    const user: any = await this.userService.findUserByEmail(
+      currentUser?.email,
+    );
+
+    const result = await this.userService.update({
+      id: user.id,
+      updateUserInput,
+    });
+    return {
+      statusCode: 200,
+      message: '회원 정보 수정 성공',
+      data: {
+        email: result.email,
+        name: result.username,
+        uid: result.uid,
+        imageUrl: result.imageUrl,
+        description: result.description,
+      },
+    };
   }
 
   //----------------- 탈퇴 -----------------------//
@@ -94,7 +115,7 @@ export class UserController {
       message: '내 정보 조회',
       data: {
         email: user?.email,
-        name: user?.name,
+        username: user?.username,
         uid: user?.uid,
         iat: currentUser?.iat,
         exp: currentUser?.exp,
@@ -111,7 +132,7 @@ export class UserController {
       message: '회원 정보 조회',
       data: {
         email: user.email,
-        name: user.name,
+        username: user.username,
         uid: user.uid,
       },
     };
@@ -141,10 +162,94 @@ export class UserController {
       message: '로그인 성공',
       data: {
         email: user.email,
-        name: user.name,
+        username: user.username,
         uid: user.uid,
         access_token: access_token,
       },
+    };
+  }
+
+  @Post('/find-password')
+  async findPassword(@Body() body: { email: string }) {
+    const result = await this.userService.findUserByEmail(body.email);
+    if (!result) {
+      return {
+        statusCode: 400,
+        message: '존재하지 않는 이메일입니다.',
+        data: {},
+      };
+    }
+    const userId = result.id;
+    const token = EncryptUtil.TwoWay.encrypt(`${userId}^${Date.now()}`);
+    return {
+      statusCode: 200,
+      message: '비밀번호 초기화 이메일 전송 성공',
+      data: {
+        token,
+      },
+    };
+  }
+
+  @Post('/find-password/validate')
+  async findPasswordValidationToken(@Body('token') token: string) {
+    const payload = await this.userService.validateToken(token);
+    // switch (payload.status) {
+    //   case RequestTokenValidationStatus.EXPIRED:
+    //   case RequestTokenValidationStatus.INVALID:
+    //     return {
+    //       statusCode: 400,
+    //       message: payload.message,
+    //       data: {},
+    //     };
+    //   case RequestTokenValidationStatus.VALID:
+    //     return {
+    //       statusCode: 200,
+    //       message: payload.message,
+    //       data: {},
+    //     };
+    // }
+    return {
+      statusCode: 200,
+      message: payload.message,
+      data: {},
+    };
+  }
+
+  @Post('/reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('password') password: string,
+  ) {
+    const payload = await this.userService.validateToken(token);
+    const userId = payload.targetId;
+    const result = await this.userService.resetPassword(userId, password);
+    // switch (payload.status) {
+    //   case RequestTokenValidationStatus.EXPIRED:
+    //   case RequestTokenValidationStatus.INVALID:
+    //     return {
+    //       statusCode: 400,
+    //       message: payload.message,
+    //       data: {},
+    //     };
+    //   case RequestTokenValidationStatus.VALID:
+    //     const userId = payload.targetId;
+
+    //     try {
+    //       const result = await this.userService.resetPassword(userId, password);
+
+    //       return result;
+    //     } catch (e) {
+    //       return {
+    //         statusCode: 400,
+    //         message: '비밀번호 변경 실패',
+    //         data: {},
+    //       };
+    //     }
+    // }
+    return {
+      statusCode: 400,
+      message: '비밀번호 변경 실패' + result,
+      data: {},
     };
   }
 }
