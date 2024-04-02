@@ -55,7 +55,7 @@ export class UserController {
       message: '회원 가입 성공',
       data: {
         email: result.email,
-        username: result.username,
+        name: result.name,
         phone: result.phone,
         uid: result.uid,
       },
@@ -85,9 +85,9 @@ export class UserController {
       message: '회원 정보 수정 성공',
       data: {
         email: result.email,
-        name: result.username,
+        name: result.name,
         uid: result.uid,
-        imageUrl: result.imageUrl,
+        image: result.image,
         description: result.description,
       },
     };
@@ -115,7 +115,7 @@ export class UserController {
       message: '내 정보 조회',
       data: {
         email: user?.email,
-        username: user?.username,
+        name: user?.name,
         uid: user?.uid,
         iat: currentUser?.iat,
         exp: currentUser?.exp,
@@ -132,7 +132,7 @@ export class UserController {
       message: '회원 정보 조회',
       data: {
         email: user.email,
-        username: user.username,
+        name: user.name,
         uid: user.uid,
       },
     };
@@ -162,7 +162,7 @@ export class UserController {
       message: '로그인 성공',
       data: {
         email: user.email,
-        username: user.username,
+        name: user.name,
         uid: user.uid,
         access_token: access_token,
       },

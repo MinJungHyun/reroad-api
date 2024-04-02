@@ -68,7 +68,7 @@ model Product {
   id               Int              @id @default(autoincrement())
   name             String
   description      String
-  price            Float
+  price            Int
   viewCount        Int              @default(0) @map(name: "view_count")
   chatCount        Int              @default(0) @map(name: "chat_count")
   likeCount        Int              @default(0) @map(name: "like_count")
