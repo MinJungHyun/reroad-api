@@ -44,7 +44,7 @@ model Category {
   id       Int        @id @default(autoincrement())
   name     String
   parent   Category?  @relation("ChildCategories", fields: [parentId], references: [id])
-  parentId Int?
+  parentId Int?       @map("parent_id")
   children Category[] @relation("ChildCategories") // 자식 카테고리들
   products Product[] // 해당 카테고리에 속한 상품들
 
@@ -56,7 +56,7 @@ model Brand {
   id       Int       @id @default(autoincrement())
   name     String
   parent   Brand?    @relation("ChildBrands", fields: [parentId], references: [id])
-  parentId Int?
+  parentId Int?      @map("parent_id")
   children Brand[]   @relation("ChildBrands") // 자식 브랜드들
   products Product[] // 해당 브랜드의 상품들
 
@@ -69,21 +69,21 @@ model Product {
   name             String
   description      String
   price            Float
-  viewCount        Int              @default(0) // 조회수
-  chatCount        Int              @default(0) // 채팅 횟수
-  likeCount        Int              @default(0) // 좋아요 횟수
-  isHidden         Boolean          @default(false) // 숨기기 여부
-  hideAt           DateTime? // 숨긴 시간
-  deletedAt        DateTime? // 삭제 시간
-  transactionType  TransactionType // 거래 유형: 판매, 교환, 구매, 나눔 등
-  transactionState TransactionState // 거래 상태: 진행 중, 완료됨, 취소됨 등
-  completedAt      DateTime? // 거래 완료 시간
+  viewCount        Int              @default(0) @map(name: "view_count")
+  chatCount        Int              @default(0) @map(name: "chat_count")
+  likeCount        Int              @default(0) @map(name: "like_count")
+  isHidden         Boolean          @default(false) @map(name: "is_hidden")
+  hideAt           DateTime?        @map(name: "hide_at")
+  deletedAt        DateTime?        @map(name: "deleted_at")
+  transactionType  TransactionType  @map(name: "transaction_type")
+  transactionState TransactionState @map(name: "transaction_state")
+  completedAt      DateTime?        @map(name: "completed_at")
   category         Category?        @relation(fields: [categoryId], references: [id])
-  categoryId       Int? // 해당 상품의 카테고리 ID
+  categoryId       Int?             @map("category_id")
   brand            Brand?           @relation(fields: [brandId], references: [id])
-  brandId          Int? // 해당 상품의 브랜드 ID
+  brandId          Int?             @map("brand_id")
   createdBy        User             @relation(fields: [createdById], references: [id])
-  createdById      Int
+  createdById      Int              @map("created_by_id")
   likes            ProductLike[] // 해당 상품을 좋아하는 사용자들
   tags             Tag[] // 상품에 연관된 태그들
   images           ProductImage[] // 상품 이미지들 
@@ -96,7 +96,7 @@ model Product {
 model ProductImage {
   id        Int     @id @default(autoincrement())
   url       String
-  productId Int
+  productId Int     @map("product_id")
   product   Product @relation(fields: [productId], references: [id])
 
   @@map("product_image")
@@ -104,11 +104,11 @@ model ProductImage {
 
 // 중고물품 채팅 정보를 저장하는 테이블
 model Chat {
-  id          Int           @id @default(autoincrement())
-  product     Product       @relation(fields: [productId], references: [id])
-  productId   Int
-  ChatMessage ChatMessage[]
-  ChatJoin    ChatJoin[]
+  id           Int           @id @default(autoincrement())
+  product      Product       @relation(fields: [productId], references: [id])
+  productId    Int           @map("product_id")
+  chatMessages ChatMessage[]
+  chatJoins    ChatJoin[]
 
   @@map("chat")
 }
@@ -116,9 +116,9 @@ model Chat {
 model ChatJoin {
   id     Int  @id @default(autoincrement())
   chat   Chat @relation(fields: [chatId], references: [id])
-  chatId Int
+  chatId Int  @map("chat_id")
   user   User @relation(fields: [userId], references: [id])
-  userId Int
+  userId Int  @map("user_id")
 
   @@map("chat_join")
 }
@@ -127,9 +127,9 @@ model ChatJoin {
 model ChatMessage {
   id        Int      @id @default(autoincrement())
   chat      Chat     @relation(fields: [chatId], references: [id])
-  chatId    Int
+  chatId    Int      @map("chat_id")
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    Int      @map("user_id")
   message   String
   createdAt DateTime @default(now())
 
@@ -140,9 +140,9 @@ model ChatMessage {
 model ProductLike {
   id        Int     @id @default(autoincrement())
   user      User    @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    Int     @map("user_id")
   product   Product @relation(fields: [productId], references: [id])
-  productId Int
+  productId Int     @map("product_id")
 
   @@map("product_like")
 }
@@ -152,7 +152,7 @@ model Tag {
   id        Int     @id @default(autoincrement())
   name      String
   product   Product @relation(fields: [productId], references: [id])
-  productId Int
+  productId Int     @map("product_id")
 
   @@map("tag")
 }
@@ -161,7 +161,7 @@ model Tag {
 model Keyword {
   id     Int    @id @default(autoincrement())
   word   String
-  userId Int?
+  userId Int?   @map("user_id")
   user   User?  @relation(fields: [userId], references: [id])
 
   @@map("keyword")
