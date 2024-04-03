@@ -15,11 +15,13 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  // 1. 상품 생성
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
   }
 
+  // 2. 상품 조회
   @Get()
   findAll() {
     return this.productService.findAll();
@@ -39,4 +41,6 @@ export class ProductController {
   remove(@Param('id') id: string) {
     return this.productService.remove(+id);
   }
+
+  //product 좋아요
 }
