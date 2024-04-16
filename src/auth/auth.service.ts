@@ -48,8 +48,18 @@ export class AuthService {
 
   async OAuthLogin({ req, res }) {
     const email: string = req.user.email || '';
+    console.log('@@@1@', req.user);
+
     let user = await this.userService.findUserByEmail(email);
-    if (!user) user = await this.userService.create({ ...req.user });
+    if (!user)
+      user = await this.userService.create({
+        createUserInput: {
+          email: email,
+          name: req.user.name,
+          password: '',
+          phone: '',
+        },
+      });
 
     this.setRefreshToken({ user, res, req });
     res.redirect('http://localhost:3000');

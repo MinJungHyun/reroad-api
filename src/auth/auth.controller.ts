@@ -35,9 +35,6 @@ export class AuthController {
     @Req() req: Request & IOAuthUser, //
     @Res() res: Response,
   ) {
-    console.log('@@@@', req);
-    console.log('@@@@', res);
-
     this.authService.OAuthLogin({ req, res });
   }
 

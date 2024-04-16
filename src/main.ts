@@ -4,7 +4,7 @@ import { SwaggerSetting } from './swagger.setting';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  SwaggerSetting(app);
-  await app.listen(5010);
+  // SwaggerSetting(app);
+  await app.listen(3010);
 }
 bootstrap();
