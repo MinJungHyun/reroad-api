@@ -3,10 +3,8 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as shortid from 'shortid';
 import { EncryptUtil } from 'src/common/utils/encrypt-utils';
-import {
-  RequestTokenValidation,
-  RequestTokenValidationStatus,
-} from 'src/auth/auth.types';
+import { RequestTokenValidation, RequestTokenValidationStatus } from 'src/auth/auth.types';
+import { UserDTO } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,20 +15,31 @@ export class UserService {
     return result;
   }
 
-  async fetch(id: number) {
+  async findById(id: number): Promise<UserDTO | null> {
     const result = await this.prisma.user.findUnique({
       where: {
-        id,
-      },
+        id
+      }
     });
-    return result;
+
+    if (!result) return null;
+
+    const user: UserDTO = {
+      id: result.id,
+      email: result.email,
+      name: result.name,
+      phone: result.phone,
+      uid: result.uid,
+      imageUser: result.image ?? ''
+    };
+    return user;
   }
 
   async fetchByUid(uid: string) {
     const result = await this.prisma.user.findMany({
       where: {
-        uid,
-      },
+        uid
+      }
     });
     return result[0];
   }
@@ -38,8 +47,8 @@ export class UserService {
   async findUserByEmail(email: string) {
     const result = await this.prisma.user.findFirst({
       where: {
-        email,
-      },
+        email
+      }
     });
     console.log('userservice.findUserByEmail', result);
 
@@ -80,8 +89,8 @@ export class UserService {
         uid: uid,
         phone: phone,
         role: 'user',
-        password: hashedPassword,
-      },
+        password: hashedPassword
+      }
     });
 
     return result;
@@ -92,7 +101,7 @@ export class UserService {
 
     const result = await this.prisma.user.update({
       where: { id },
-      data: user,
+      data: user
     });
 
     return result;
@@ -101,8 +110,8 @@ export class UserService {
   async delete({ id }) {
     return await this.prisma.user.delete({
       where: {
-        id: Number(id),
-      },
+        id: Number(id)
+      }
     });
   }
 
@@ -121,11 +130,11 @@ export class UserService {
   async setBusiness(id: number) {
     return await this.prisma.user.update({
       where: {
-        id: id,
+        id: id
       },
       data: {
-        type: 'business',
-      },
+        type: 'business'
+      }
     });
   }
 
@@ -142,20 +151,20 @@ export class UserService {
         status: RequestTokenValidationStatus.EXPIRED,
         message: '만료된 토큰',
         targetId: +userId,
-        timestamp: +timestamp,
+        timestamp: +timestamp
       };
     }
     const res = await this.prisma.user.findFirst({
       where: {
-        id: +userId,
-      },
+        id: +userId
+      }
     });
     if (!res) {
       return {
         status: RequestTokenValidationStatus.INVALID,
         message: '유효하지 않은 토큰',
         targetId: +userId,
-        timestamp: +timestamp,
+        timestamp: +timestamp
       };
     }
 
@@ -164,7 +173,7 @@ export class UserService {
       status: RequestTokenValidationStatus.VALID,
       message: '유효한 토큰',
       targetId: +userId,
-      timestamp: +timestamp,
+      timestamp: +timestamp
     };
   }
 
@@ -173,36 +182,36 @@ export class UserService {
     //기존 비밀번호 찾기
     const user = await this.prisma.user.findFirst({
       where: {
-        id: userId,
-      },
+        id: userId
+      }
     });
     if (user?.password === hashedPassword) {
       return {
         statusCode: 400,
         message: '기존 비밀번호와 동일합니다.',
-        data: {},
+        data: {}
       };
     }
 
     const result = await this.prisma.user.update({
       where: {
-        id: userId,
+        id: userId
       },
       data: {
-        password: hashedPassword,
-      },
+        password: hashedPassword
+      }
     });
     if (result) {
       return {
         statusCode: 200,
         message: '비밀번호 변경 성공',
-        data: {},
+        data: {}
       };
     } else {
       return {
         statusCode: 400,
         message: '비밀번호 변경 실패',
-        data: {},
+        data: {}
       };
     }
   }

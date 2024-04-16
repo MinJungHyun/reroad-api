@@ -16,60 +16,48 @@ interface IOAuthUser {
 export class AuthController {
   constructor(
     private readonly userService: UserService, //
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {}
 
-  //-----------------------구글 로그인-----------------------------//
+  /**
+   * Google Login
+   */
   @Get('/google')
   @UseGuards(AuthGuard('google'))
-  async loginGoogle(
-    @Req() req: Request & IOAuthUser, //
-    @Res() res: Response,
-  ) {
-    this.authService.OAuthLogin({ req, res });
-  }
+  async googleLogin() {}
 
   @Get('/google/callback')
   @UseGuards(AuthGuard('google'))
-  async loginGoogleCallback(
-    @Req() req: Request & IOAuthUser, //
-    @Res() res: Response,
-  ) {
-    console.log('@@@@', req);
-    console.log('@@@@', res);
-
-    this.authService.OAuthLogin({ req, res });
+  async googleLoginCallback(@Req() req: Request & IOAuthUser, @Res() res: Response) {
+    const token = await this.authService.googleLogin({ req, res });
+    res.cookie('access_token', token.access_token, { httpOnly: true });
+    res.redirect('http://localhost:3000');
   }
 
-  //-----------------------카카오 로그인-----------------------------//
+  /**
+   * Kakao Login
+   */
   @Get('/kakao')
   @UseGuards(AuthGuard('kakao'))
   async loginKakao() {}
 
   @Get('/kakao/callback')
   @UseGuards(AuthGuard('kakao'))
-  async loginKakaoCallback(
-    @Req() req: Request & IOAuthUser, //
-    @Res() res: Response,
-  ) {
+  async loginKakaoCallback(@Req() req: Request & IOAuthUser, @Res() res: Response) {
     this.authService.OAuthLogin({ req, res });
   }
 
-  //-----------------------네이버 로그인-----------------------------//
+  /**
+   * Naver Login
+   */
   @Get('/naver')
   @UseGuards(AuthGuard('naver'))
-  async loginNaver(
-    @Req() req: Request & IOAuthUser, //
-    @Res() res: Response,
-  ) {
+  async loginNaver(@Req() req: Request & IOAuthUser, @Res() res: Response) {
     this.authService.OAuthLogin({ req, res });
   }
 
   @Get('favicon.ico')
-  favicon(
-    @Req() req: Request & IOAuthUser, //
-    @Res() res: Response,
-  ) {
+  favicon(@Req() req: Request & IOAuthUser, @Res() res: Response) {
     res.status(204).end();
   }
 }

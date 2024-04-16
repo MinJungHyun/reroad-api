@@ -1,47 +1,29 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthService } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { EncryptUtil } from '../common/utils/encrypt-utils';
 import { CreateUserInput } from './dto/create-user.dto';
 import { UpdateUserInput } from './dto/update-user.dto';
+import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { AuthService } from 'src/auth/auth.service';
-import { EncryptUtil } from '../common/utils/encrypt-utils';
 
 @Controller('user')
 @ApiTags('유저 API')
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {}
 
-  //----------------- 조회 -----------------------//
-  @Get('/')
-  @ApiOperation({
-    summary: '유저 전체 조회',
-    description: '유저 전체 조회 API',
-  })
-  async fetchAllUser() {
-    return await this.userService.fetchAll();
-  }
-
+  /**
+   *  유저  조회
+   * @param id
+   * @returns 유저 정보
+   */
   @Get('/:id')
-  @ApiOperation({
-    summary: '유저 단일 조회',
-    description: '유저 단일 조회 API',
-  })
-  async fetchUser(@Param('id') id: number) {
-    return await this.userService.fetch(id);
+  async fetchUser(@Param('id') id: number): Promise<UserDTO | null> {
+    return await this.userService.findById(id);
   }
 
   //----------------- 생성 -----------------------//
@@ -57,8 +39,8 @@ export class UserController {
         email: result.email,
         name: result.name,
         phone: result.phone,
-        uid: result.uid,
-      },
+        uid: result.uid
+      }
     };
   }
 
@@ -66,19 +48,14 @@ export class UserController {
   @Patch('/update')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '유저 업데이트', description: '유저 업데이트 API' })
-  async updateUser(
-    @Body() updateUserInput: UpdateUserInput,
-    @Req() request: any,
-  ) {
+  async updateUser(@Body() updateUserInput: UpdateUserInput, @Req() request: any) {
     const token = request.headers.authorization.split(' ')[1]; // 예시: Bearer 토큰에서 실제 토큰 추출
     const currentUser: any = await this.authService.getCurrentUser(token);
-    const user: any = await this.userService.findUserByEmail(
-      currentUser?.email,
-    );
+    const user: any = await this.userService.findUserByEmail(currentUser?.email);
 
     const result = await this.userService.update({
       id: user.id,
-      updateUserInput,
+      updateUserInput
     });
     return {
       statusCode: 200,
@@ -88,8 +65,8 @@ export class UserController {
         name: result.name,
         uid: result.uid,
         image: result.image,
-        description: result.description,
-      },
+        description: result.description
+      }
     };
   }
 
@@ -107,9 +84,7 @@ export class UserController {
   async getCurrentUser(@Req() request: any) {
     const token = request.headers.authorization.split(' ')[1]; // 예시: Bearer 토큰에서 실제 토큰 추출
     const currentUser: any = await this.authService.getCurrentUser(token);
-    const user: any = await this.userService.findUserByEmail(
-      currentUser?.email,
-    );
+    const user: any = await this.userService.findUserByEmail(currentUser?.email);
     return {
       statusCode: 200,
       message: '내 정보 조회',
@@ -118,8 +93,8 @@ export class UserController {
         name: user?.name,
         uid: user?.uid,
         iat: currentUser?.iat,
-        exp: currentUser?.exp,
-      },
+        exp: currentUser?.exp
+      }
     };
   }
 
@@ -133,8 +108,8 @@ export class UserController {
       data: {
         email: user.email,
         name: user.name,
-        uid: user.uid,
-      },
+        uid: user.uid
+      }
     };
   }
 
@@ -146,8 +121,8 @@ export class UserController {
       statusCode: 200,
       message: '회원 가입 여부 확인',
       data: {
-        isExist: result ? true : false,
-      },
+        isExist: result ? true : false
+      }
     };
   }
 
@@ -164,8 +139,8 @@ export class UserController {
         email: user.email,
         name: user.name,
         uid: user.uid,
-        access_token: access_token,
-      },
+        access_token: access_token
+      }
     };
   }
 
@@ -176,7 +151,7 @@ export class UserController {
       return {
         statusCode: 400,
         message: '존재하지 않는 이메일입니다.',
-        data: {},
+        data: {}
       };
     }
     const userId = result.id;
@@ -185,8 +160,8 @@ export class UserController {
       statusCode: 200,
       message: '비밀번호 초기화 이메일 전송 성공',
       data: {
-        token,
-      },
+        token
+      }
     };
   }
 
@@ -211,15 +186,12 @@ export class UserController {
     return {
       statusCode: 200,
       message: payload.message,
-      data: {},
+      data: {}
     };
   }
 
   @Post('/reset-password')
-  async resetPassword(
-    @Body('token') token: string,
-    @Body('password') password: string,
-  ) {
+  async resetPassword(@Body('token') token: string, @Body('password') password: string) {
     const payload = await this.userService.validateToken(token);
     const userId = payload.targetId;
     const result = await this.userService.resetPassword(userId, password);
@@ -249,7 +221,7 @@ export class UserController {
     return {
       statusCode: 400,
       message: '비밀번호 변경 실패' + result,
-      data: {},
+      data: {}
     };
   }
 }

@@ -1,5 +1,5 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-google-oauth20';
+import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 
 export class JwtGoogleStrategy extends PassportStrategy(Strategy, 'google') {
   //UseGuards의 이름과 동일해야함
@@ -10,19 +10,24 @@ export class JwtGoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID: process.env.GOOGLE_CLIENT_ID, //.env파일에 들어있음
       clientSecret: process.env.GOOGLE_CLIENT_SECRET, //.env파일에 들어있음
       callbackURL: process.env.GOOGLE_CALLBACK_URL, //.env파일에 들어있음
-      scope: ['email', 'profile'],
+      scope: ['email', 'profile']
     });
   }
 
-  validate(accessToken, refreshToken, profile) {
-    // console.log(accessToken);
-    // console.log(refreshToken);
-    // console.log(profile);
+  validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
+    try {
+      const { id, displayName, emails, photos } = profile;
 
-    return {
-      name: profile.displayName,
-      email: profile.emails[0].value,
-      hashedPassword: '1234',
-    };
+      const user = {
+        provider: 'google',
+        providerId: id,
+        email: emails[0].value,
+        name: displayName,
+        image: photos[0].value
+      };
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
   }
 }
