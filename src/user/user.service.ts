@@ -78,7 +78,7 @@ export class UserService {
     // }
 
     // 비밀번호 암호화
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(email, 10);
 
     // 유저 생성
     const result = await this.prisma.user.create({

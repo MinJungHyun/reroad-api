@@ -41,6 +41,8 @@ export class AuthService {
   }
   async googleLogin({ req, res }) {
     const email: string = req.user.email || '';
+    console.log('@@@1@', req.user);
+
     let user = await this.userService.findUserByEmail(email);
     if (!user)
       user = await this.userService.create({
