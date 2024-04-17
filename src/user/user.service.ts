@@ -30,7 +30,7 @@ export class UserService {
       name: result.name,
       phone: result.phone,
       uid: result.uid,
-      imageUser: result.image ?? ''
+      image: result.image ?? ''
     };
     return user;
   }
@@ -56,7 +56,7 @@ export class UserService {
   }
 
   async create({ createUserInput }) {
-    const { email, password, name, phone } = createUserInput;
+    const { email, password, name, phone, image } = createUserInput;
 
     const user = await this.prisma.user.findFirst({ where: { email } });
     if (user) throw new ConflictException('이미 가입된 이메일입니다');
@@ -89,6 +89,7 @@ export class UserService {
         uid: uid,
         phone: phone,
         role: 'user',
+        image: image,
         password: hashedPassword
       }
     });

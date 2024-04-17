@@ -30,7 +30,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleLoginCallback(@Req() req: Request & IOAuthUser, @Res() res: Response) {
     const token = await this.authService.googleLogin({ req, res });
-    res.cookie('access_token', token.access_token, { httpOnly: true });
+    res.cookie('access_token', token.access_token, { maxAge: 2 * 60 * 60 * 1000 });
     res.redirect('http://localhost:3000');
   }
 

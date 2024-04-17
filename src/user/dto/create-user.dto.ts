@@ -14,8 +14,7 @@ export class CreateUserInput {
 
   @ApiProperty({
     description: '사용자 이미지 url',
-    example:
-      'https://sorasample-bucket.s3.ap-northeast-2.amazonaws.com/image/user/1676353859021-pika.jpeg',
+    example: 'https://sorasample-bucket.s3.ap-northeast-2.amazonaws.com/image/user/1676353859021-pika.jpeg'
   })
-  imageUser: string;
+  image: string;
 }

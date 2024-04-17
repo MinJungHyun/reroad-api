@@ -4,5 +4,5 @@ export class UserDTO {
   name: string;
   phone: string;
   uid: string;
-  imageUser: string;
+  image: string;
 }
