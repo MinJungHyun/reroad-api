@@ -12,6 +12,7 @@ interface IOAuthUser {
   };
 }
 
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN || 'localhost';
 const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,12 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleLoginCallback(@Req() req: Request & IOAuthUser, @Res() res: Response) {
     const token = await this.authService.googleLogin({ req, res });
-    res.cookie('access_token', token.access_token, { maxAge: 2 * 60 * 60 * 1000 });
+    res.cookie('access_token', token.access_token, {
+      maxAge: 2 * 60 * 60 * 1000,
+      // sameSite: 'none'
+      domain: COOKIE_DOMAIN
+    });
+    console.log('@@@', process.env.FRONTEND_BASE_URL);
     res.redirect(FRONTEND_BASE_URL);
   }
 
