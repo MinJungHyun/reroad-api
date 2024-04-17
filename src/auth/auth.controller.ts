@@ -12,6 +12,7 @@ interface IOAuthUser {
   };
 }
 
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -31,7 +32,7 @@ export class AuthController {
   async googleLoginCallback(@Req() req: Request & IOAuthUser, @Res() res: Response) {
     const token = await this.authService.googleLogin({ req, res });
     res.cookie('access_token', token.access_token, { maxAge: 2 * 60 * 60 * 1000 });
-    res.redirect('http://localhost:3000');
+    res.redirect(FRONTEND_BASE_URL);
   }
 
   /**

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { IAuthServiceSetRefreshToken } from './interfaces/auth-service.interface';
 import { UserService } from 'src/user/user.service';
 
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,7 +24,7 @@ export class AuthService {
     console.log('@@@@', refreshToken);
 
     res.setHeader('Set-Cookie', `refreshToken=${refreshToken}; path=/;`);
-    const allowedOrigins = ['http://localhost:3000'];
+    const allowedOrigins = [FRONTEND_BASE_URL];
     const origin = req.headers.origin || '';
 
     if (allowedOrigins.includes(origin)) {
@@ -83,7 +84,7 @@ export class AuthService {
       });
 
     this.setRefreshToken({ user, res, req });
-    res.redirect('http://localhost:3000');
+    res.redirect(FRONTEND_BASE_URL);
     return 'done';
   }
   async getCurrentUser(token: string) {
