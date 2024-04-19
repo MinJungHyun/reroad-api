@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateKeywordDto } from './dto/create-keyword.dto';
+import { KeywordDTO } from './dto/keyword.dto';
 
 @Injectable()
 export class KeywordService {
@@ -8,5 +9,22 @@ export class KeywordService {
 
   async create(data: CreateKeywordDto) {
     return this.prisma.keyword.create({ data });
+  }
+
+  async findAll(userId: number): Promise<KeywordDTO[]> {
+    const res = await this.prisma.keyword.findMany({
+      where: { userId },
+      orderBy: { id: 'desc' }
+    });
+    return res.map(r => ({ id: r.id, word: r.word }));
+  }
+
+  async delete(word: string, userId: number) {
+    return await this.prisma.keyword.deleteMany({
+      where: {
+        word: word,
+        userId: userId
+      }
+    });
   }
 }

@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateKeywordDto } from './dto/create-keyword.dto';
 import { KeywordService } from './keyword.service';
 import { User } from 'src/user/user.decorator';
+import { KeywordDTO } from './dto/keyword.dto';
 
 @Controller('keyword')
 export class KeywordController {
@@ -17,23 +18,16 @@ export class KeywordController {
     });
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.keywordService.findAll();
-  // }
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  findAllKeyword(@User() user: any): Promise<KeywordDTO[]> {
+    return this.keywordService.findAll(user.id);
+  }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.keywordService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateKeywordDto: UpdateKeywordDto) {
-  //   return this.keywordService.update(+id, updateKeywordDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.keywordService.remove(+id);
-  // }
+  @Delete()
+  @UseGuards(JwtAuthGuard)
+  delete(@Param('word') word: string, @User() user: any) {
+    console.log(word, user.id);
+    return this.keywordService.delete(word, user.id);
+  }
 }
