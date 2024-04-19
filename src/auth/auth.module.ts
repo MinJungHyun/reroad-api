@@ -9,9 +9,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtGoogleStrategy } from './strategy/jwt.google.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
-  imports: [JwtModule.register({}), PrismaModule],
+  imports: [PassportModule, JwtModule.register({}), PrismaModule],
   providers: [
     JwtAccessStrategy, //
     JwtRefreshStrategy,
@@ -19,11 +20,11 @@ import { JwtGoogleStrategy } from './strategy/jwt.google.strategy';
     // JwtNaverStrategy,
     JwtKakaoStrategy,
     AuthService,
-    UserService,
+    UserService
   ],
   controllers: [
-    AuthController, //
+    AuthController //
   ],
-  exports: [AuthService],
+  exports: [AuthService]
 })
 export class AuthModule {}

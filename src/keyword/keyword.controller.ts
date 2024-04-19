@@ -1,42 +1,32 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
-import { KeywordService } from './keyword.service';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { User } from 'src/user/user.decorator';
 import { CreateKeywordDto } from './dto/create-keyword.dto';
-import { UpdateKeywordDto } from './dto/update-keyword.dto';
+import { KeywordDTO } from './dto/keyword.dto';
+import { KeywordService } from './keyword.service';
 
 @Controller('keyword')
 export class KeywordController {
   constructor(private readonly keywordService: KeywordService) {}
 
   @Post()
-  create(@Body() createKeywordDto: CreateKeywordDto) {
-    return this.keywordService.create(createKeywordDto);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createKeywordDto: CreateKeywordDto, @User() user: any) {
+    return this.keywordService.create({
+      word: createKeywordDto.word,
+      userId: user.id
+    });
   }
 
-  @Get()
-  findAll() {
-    return this.keywordService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.keywordService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateKeywordDto: UpdateKeywordDto) {
-    return this.keywordService.update(+id, updateKeywordDto);
+  @Get('list')
+  @UseGuards(JwtAuthGuard)
+  findAllKeyword(@User() user: any): Promise<KeywordDTO[]> {
+    return this.keywordService.findAll(user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.keywordService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  delete(@Param('id', ParseIntPipe) id: number, @User() user: any) {
+    return this.keywordService.delete(id, user.id);
   }
 }
