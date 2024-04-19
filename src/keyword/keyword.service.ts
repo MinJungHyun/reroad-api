@@ -19,10 +19,10 @@ export class KeywordService {
     return res.map(r => ({ id: r.id, word: r.word }));
   }
 
-  async delete(word: string, userId: number) {
+  async delete(id: number, userId: number) {
     return await this.prisma.keyword.deleteMany({
       where: {
-        word: word,
+        id: id,
         userId: userId
       }
     });
