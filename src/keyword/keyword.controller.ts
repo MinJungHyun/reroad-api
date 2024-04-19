@@ -2,6 +2,7 @@ import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateKeywordDto } from './dto/create-keyword.dto';
 import { KeywordService } from './keyword.service';
+import { User } from 'src/user/user.decorator';
 
 @Controller('keyword')
 export class KeywordController {
@@ -9,13 +10,10 @@ export class KeywordController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createKeywordDto: CreateKeywordDto, @Req() request: any) {
-    console.log(createKeywordDto);
-    console.log('@@@@', request);
-
+  create(@Body() createKeywordDto: CreateKeywordDto, @User() user: any) {
     return this.keywordService.create({
       word: createKeywordDto.word,
-      userId: request.user.id
+      userId: user.id
     });
   }
 

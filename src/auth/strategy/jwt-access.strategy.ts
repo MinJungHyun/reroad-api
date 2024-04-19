@@ -13,7 +13,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt') {
     console.log(payload);
     return {
       email: payload.email,
-      id: payload.sub,
+      id: payload.id,
       role: payload.role
     };
   }
