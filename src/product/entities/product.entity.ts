@@ -11,6 +11,8 @@ export class ProductEntity implements Product {
   likeCount: number;
   isHidden: boolean;
   hideAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
   deletedAt: Date;
   completedAt: Date;
   categoryId: number;

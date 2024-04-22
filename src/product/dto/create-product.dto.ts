@@ -6,11 +6,10 @@ export class CreateProductDto extends PickType(ProductEntity, [
   'description',
   'price',
   'hideAt',
-  'deletedAt',
   'completedAt',
   'categoryId',
   'brandId',
   'createdById',
   'transactionType',
-  'transactionState',
+  'transactionState'
 ]) {}
