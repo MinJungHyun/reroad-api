@@ -23,4 +23,16 @@ export class ProductService extends getCrud<Prisma.ProductGetPayload<typeof defa
       }
     });
   }
+  async getProduct(id: number) {
+    return this.prisma.product.findUnique({
+      where: {
+        id
+      },
+      include: {
+        images: true,
+        createdBy: true,
+        category: true
+      }
+    });
+  }
 }

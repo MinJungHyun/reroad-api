@@ -20,8 +20,8 @@ export class ProductController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.productService.getProduct(id);
   }
 
   @Patch(':id')
