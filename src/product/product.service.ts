@@ -18,7 +18,8 @@ export class ProductService extends getCrud<Prisma.ProductGetPayload<typeof defa
         categoryId: category
       },
       include: {
-        images: true
+        images: true,
+        createdBy: true
       }
     });
   }
