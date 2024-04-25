@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, DefaultValuePipe } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -17,6 +17,16 @@ export class ProductController {
   @Get('/category/:category')
   findCategory(@Param('category', ParseIntPipe) category: number) {
     return this.productService.findCategory(category);
+  }
+  // 2. 상품 조회
+  @Get('/category_cursor/:category')
+  findCategoryByCursor(
+    @Param('category', ParseIntPipe) category: number,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take?: number,
+    @Query('cursorId', new DefaultValuePipe(0), ParseIntPipe) cursorId?: number
+  ) {
+    const takeValue = take ? take : 10;
+    return this.productService.findCategoryByCursor(category, takeValue, cursorId);
   }
 
   @Get(':id')
