@@ -33,6 +33,10 @@ export class ProductService extends getCrud<Prisma.ProductGetPayload<typeof defa
       where: {
         AND: whereCondition
       },
+      include: {
+        images: true,
+        createdBy: true
+      },
       take,
       orderBy: { id: 'asc' } // 여기서 'asc' 또는 'desc'로 정렬 순서를 지정할 수 있습니다.
     });
