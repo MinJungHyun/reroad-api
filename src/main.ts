@@ -6,8 +6,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // SwaggerSetting(app);
   app.enableCors({
-    origin: true, //여기에 url을 넣어도된다.
-    credentials: true
+    origin: ['https://www.example.shop', 'http://localhost:3000'],
+    credentials: true,
+    exposedHeaders: ['Authorization'] // * 사용할 헤더 추가.
   });
   app.setGlobalPrefix('api');
   await app.listen(3010);
