@@ -59,7 +59,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  @SubscribeMessage('join')
+  @SubscribeMessage('joinRoom')
   handleJoin(client: Socket, room: string): void {
     // 이미 접속한 방인지 확인
     if (client.rooms.has(room)) {
@@ -67,29 +67,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     client.join(room);
-
-    if (!this.roomUsers[room]) {
-      this.roomUsers[room] = [];
-    }
-
-    this.roomUsers[room].push(this.clientNickname[client.id]);
-    this.server.to(room).emit('userJoined', { userId: this.clientNickname[client.id], room });
-    this.server.to(room).emit('userList', { room, userList: this.roomUsers[room] });
-
-    this.server.emit('userList', {
-      room: null,
-      userList: Object.keys(this.connectedClients)
-    });
+    this.server.to(room).emit('chatMessage', `User joined room ${room}`); // 해당 room에 메시지를 보냅니다.
   }
 
   @SubscribeMessage('chatMessage')
-  handleChatMessage(client: Socket, data: { type: 'string' | 'image'; message: string; roomId: string; userId: number }): void {
+  handleChatMessage(client: Socket, data: { type: 'string' | 'image'; message: string; room: string; userId: number }): void {
     console.log(data);
     // 클라이언트가 보낸 채팅 메시지를 해당 방으로 전달
-    this.server.to(data.roomId).emit('chatMessage', {
+    this.server.to(data.room).emit('chatMessage', {
       userId: data.userId,
       message: data.message,
-      roomId: data.roomId
+      room: data.room
     });
   }
 }
