@@ -13,6 +13,19 @@ export class ChatService extends getCrud<Prisma.ChatGetPayload<typeof defaultOpt
     super(prisma.chat, defaultOptions);
   }
 
+  async getInfo(id: number): Promise<any> {
+    return await this.prisma.chat.findUnique({
+      where: { id },
+      include: {
+        chatJoins: true,
+        product: {
+          include: {
+            createdBy: true
+          }
+        }
+      }
+    });
+  }
   sendMessage(client: Socket, message: string): void {
     client.emit('chatMessage', message);
   }

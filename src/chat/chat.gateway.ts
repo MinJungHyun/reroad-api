@@ -1,14 +1,14 @@
-//
-
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  MessageBody,
   OnGatewayConnection,
-  OnGatewayDisconnect
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { ChatMessageService } from './chat-message.service';
+import { CreateChatMessageInput } from './dto/create-chat-message.input';
+import { MessageType } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
@@ -18,6 +18,8 @@ import { Server, Socket } from 'socket.io';
   }
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly chatMessageService: ChatMessageService) {} // ChatService를 주입합니다.
+
   @WebSocketServer()
   server: Server;
 
@@ -71,8 +73,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('chatMessage')
-  handleChatMessage(client: Socket, data: { type: 'string' | 'image'; message: string; room: string; userId: number }): void {
-    console.log(data);
+  handleChatMessage(client: Socket, data: { type: MessageType; message: string; room: string; userId: number }): void {
+    const input: CreateChatMessageInput = {
+      chatId: +data.room,
+      message: data.message,
+      userId: data.userId,
+      type: data.type
+    };
+    this.chatMessageService.create(input);
+
     // 클라이언트가 보낸 채팅 메시지를 해당 방으로 전달
     this.server.to(data.room).emit('chatMessage', {
       userId: data.userId,
