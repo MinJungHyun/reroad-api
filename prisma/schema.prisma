@@ -127,13 +127,14 @@ model ChatJoin {
 
 // 채팅 메시지 정보를 저장하는 테이블
 model ChatMessage {
-  id        Int      @id @default(autoincrement())
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  chatId    Int      @map("chat_id")
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @map("user_id")
+  id        Int         @id @default(autoincrement())
+  chat      Chat        @relation(fields: [chatId], references: [id])
+  chatId    Int         @map("chat_id")
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int         @map("user_id")
   message   String
-  createdAt DateTime @default(now())
+  type      MessageType @default(STRING)
+  createdAt DateTime    @default(now())
 
   @@map("chat_message")
 }
@@ -184,4 +185,9 @@ enum TransactionState {
   ONGOING // 진행 중
   COMPLETED // 완료됨
   CANCELLED // 취소됨
+}
+
+enum MessageType {
+  STRING
+  IMAGE
 }
