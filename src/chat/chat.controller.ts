@@ -7,6 +7,7 @@ import { ChatMessageService } from './chat-message.service';
 import { ChatService } from './chat.service';
 import { IChatId } from './chat.type';
 import { CreateChatMessageInput } from './dto/create-chat-message.input';
+import { ChatListDTO } from './dto/chat-list.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -17,16 +18,40 @@ export class ChatController {
     private readonly productService: ProductService
   ) {}
 
-  @Post(':id')
+  @Get('/list')
   @UseGuards(JwtAuthGuard)
-  async createMessage(@Param('id') id: string, @Body() createChatMessageDto: CreateChatMessageInput, @User() user: any) {
-    const input: CreateChatMessageInput = {
-      chatId: +id,
-      message: createChatMessageDto.message,
-      userId: user.id,
-      type: createChatMessageDto.type
-    };
-    return await this.chatMessageService.create(input);
+  async getChats(@User() user: any): Promise<ChatListDTO[]> {
+    return await this.chatService.getChatList(user.id);
+  }
+
+  @Get(':chatId')
+  @UseGuards(JwtAuthGuard)
+  async getMessages(@Param('chatId', ParseIntPipe) chatId: number, @User() user: any) {
+    // 해당 userId와 chatId가 있는지 체크, 맞는지 체크
+    const bool = await this.chatJoinService.checkChat(chatId, user.id);
+
+    // 없으면 에러
+    if (!bool) {
+      throw new Error('Chat not found');
+    }
+
+    //  메세지 반환
+    return await this.chatMessageService.findMessages(chatId);
+  }
+
+  @Get('/:chatId/info')
+  @UseGuards(JwtAuthGuard)
+  async getRoomInfo(@Param('chatId', ParseIntPipe) chatId: number, @User() user: any) {
+    // 해당 userId와 chatId가 있는지 체크, 맞는지 체크
+    const bool = await this.chatJoinService.checkChat(chatId, user.id);
+
+    // 없으면 에러
+    if (!bool) {
+      throw new Error('Chat not found');
+    }
+
+    //  메세지 반환
+    return await this.chatService.getInfo(chatId);
   }
 
   @Get('/p/:productId')
@@ -51,34 +76,15 @@ export class ChatController {
       chatId
     };
   }
-
-  @Get('/:chatId/info')
+  @Post(':id')
   @UseGuards(JwtAuthGuard)
-  async getRoomInfo(@Param('chatId', ParseIntPipe) chatId: number, @User() user: any) {
-    // 해당 userId와 chatId가 있는지 체크, 맞는지 체크
-    const bool = await this.chatJoinService.checkChat(chatId, user.id);
-
-    // 없으면 에러
-    if (!bool) {
-      throw new Error('Chat not found');
-    }
-
-    //  메세지 반환
-    return await this.chatService.getInfo(chatId);
-  }
-
-  @Get(':chatId')
-  @UseGuards(JwtAuthGuard)
-  async getMessages(@Param('chatId', ParseIntPipe) chatId: number, @User() user: any) {
-    // 해당 userId와 chatId가 있는지 체크, 맞는지 체크
-    const bool = await this.chatJoinService.checkChat(chatId, user.id);
-
-    // 없으면 에러
-    if (!bool) {
-      throw new Error('Chat not found');
-    }
-
-    //  메세지 반환
-    return await this.chatMessageService.findMessages(chatId);
+  async createMessage(@Param('id') id: string, @Body() createChatMessageDto: CreateChatMessageInput, @User() user: any) {
+    const input: CreateChatMessageInput = {
+      chatId: +id,
+      message: createChatMessageDto.message,
+      userId: user.id,
+      type: createChatMessageDto.type
+    };
+    return await this.chatMessageService.create(input);
   }
 }

@@ -69,7 +69,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     client.join(room);
-    this.server.to(room).emit('chatMessage', `User joined room ${room}`); // 해당 room에 메시지를 보냅니다.
+    // this.server.to(room).emit('chatMessage', `User joined room ${room}`); // 해당 room에 메시지를 보냅니다.
   }
 
   @SubscribeMessage('chatMessage')
