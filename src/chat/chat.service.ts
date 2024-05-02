@@ -79,6 +79,10 @@ export class ChatService extends getCrud<Prisma.ChatGetPayload<typeof defaultOpt
       };
     });
 
-    return chatLists;
+    const sortedChatLists = chatLists.sort((a, b) => {
+      return b.messageAt.getTime() - a.messageAt.getTime();
+    });
+
+    return sortedChatLists;
   }
 }

@@ -24,7 +24,7 @@ export class JwtAuthGuard extends AuthGuard(AUTH_JWT_GUARD_TYPE) {
       const req = this.getRequest(context);
       const accessToken = req.headers.authorization.replace('Bearer ', '');
 
-      console.log(accessToken);
+      // console.log(accessToken);
       const payload = (await this.jwtService.decode(accessToken)) as any;
 
       const exp = new Date(0);
