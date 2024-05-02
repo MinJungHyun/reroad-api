@@ -2,11 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 // import { SwaggerSetting } from './swagger.setting';
 
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // SwaggerSetting(app);
   app.enableCors({
-    origin: ['https://www.example.shop', 'http://localhost:3000'],
+    origin: [FRONTEND_BASE_URL],
     credentials: true,
     exposedHeaders: ['Authorization'] // * 사용할 헤더 추가.
   });
