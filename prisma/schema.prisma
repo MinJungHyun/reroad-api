@@ -170,6 +170,15 @@ model Keyword {
   @@map("keyword")
 }
 
+model Sigungu {
+  id       Int    @id
+  level    Int
+  location String
+  parentId Int?   @map("parent_id")
+
+  @@map("sigungu")
+}
+
 // schema.prisma
 
 // 거래 유형을 나타내는 열거형
