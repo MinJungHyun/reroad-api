@@ -2,6 +2,7 @@ import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/com
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
+import { CustomUnauthorizedException } from '../auth.exception';
 export const AUTH_JWT_GUARD_TYPE = 'jwt';
 @Injectable()
 export class JwtAuthGuard extends AuthGuard(AUTH_JWT_GUARD_TYPE) {
@@ -15,6 +16,8 @@ export class JwtAuthGuard extends AuthGuard(AUTH_JWT_GUARD_TYPE) {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new CustomUnauthorizedException('You are not authorized to access this resource.');
+
       return false; // JWT 토큰이 존재하지 않거나 형식이 잘못된 경우 인증 실패
     }
 
